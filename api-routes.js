@@ -33,21 +33,7 @@ router
   // It should return a 204 status code
   .post(async (req, res)=> {
     try{
-      const {
-        name,
-        image,
-        description,
-        price,
-        quantity,
-      } = req.body
-      if (!(
-        name &&
-        image &&
-        description &&
-        price &&
-        quantity
-      ))
-      return res.status(400).send('Error: Missing information')
+      const {name, image, description, price, quantity,} = req.body
       await db.query(` INSERT INTO inventory (name, image, description, price, quantity)
       VALUES (?, ?, ?, ?, ?)`,
       [name, image, description, price, quantity])
@@ -74,37 +60,33 @@ router
     try {
       const [[validItem]] = await db.query( `SELECT * FROM inventory WHERE id = ?`, req.params.id)
       if(validItem){
-        res.json(validItem)
+        return res.json(validItem)
       } else {
-          res.status(404).send('ERROR: Unable to retrieve item')
+          return res.status(404).send('ERROR: Unable to retrieve item')
       }
     } catch (err) {
       return res.status(500).send(err)
   }
   })
   // TODO: Create a PUT route that updates the inventory table based on the id
-  // in the route parameter.
+  
   // This route should accept price, quantity, name, description, and image
   // 
  
   
   .put(async (req, res) => {
     try{
-      const {
-        name,
-        image,
-        description,
-        price,
-        quantity
+      const {name, image, description, price, quantity
       //in the request body.
       } = req.body
       const [{affectedRows}] = await db.query(
+        // in the route parameter.
         `UPDATE inventory SET ? WHERE id = ?`,[{name, image, description, price, quantity}, req.params.id]
       )
        // If no item is found, return a 404 status.
-      if (affectedRows !== 0) return res.status(204).send('Inventory successfully updated')
+      if (affectedRows !== 0) {return res.status(204).send('Inventory successfully updated')}
       // If an item is modified, return a 204 status code.
-      res.status(404).send('Item Not Found')
+      else {return res.status(404).send('Item Not Found')}
     } catch (err) {
       res.status(500).send('Error updating inventory: ' + err.message)
     }
@@ -115,9 +97,9 @@ router
         // based on the id in the route parameter.
       const [{affectedRows}] = await db.query(`DELETE FROM inventory WHERE id= ?`, req.params.id)
       // If an item is deleted, return a 204 status code.
-      if (affectedRows !== 0) return res.status(204).send('Item successfully deleted.')
+      if (affectedRows !== 0) {return res.status(204).send('Item successfully deleted.')}
       // If no item is found, return a 404 status.
-      res.status(404).send('Item not Found')
+      else {return res.status(404).send('Item not Found')}
     } catch (err) {
       res.status(500).send('ERROR: Unable to delete item')
     }
